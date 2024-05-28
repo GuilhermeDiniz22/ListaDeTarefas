@@ -1,6 +1,7 @@
 package br.com.diniz.ListaDeTarefas.controllers;
 
 import br.com.diniz.ListaDeTarefas.dto.TarefaDto;
+import br.com.diniz.ListaDeTarefas.dto.TarefaResponse;
 import br.com.diniz.ListaDeTarefas.exceptions.GlobalExceptionHandler;
 import br.com.diniz.ListaDeTarefas.service.TarefaService;
 import lombok.AllArgsConstructor;
@@ -36,15 +37,25 @@ public class TarefaController {
 
     @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<List<TarefaDto>> getTarefas(){
-        List<TarefaDto> lista = tarefaService.getTarefas();
+    public ResponseEntity<TarefaResponse> getTarefas(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
+    ){
+        TarefaResponse lista = tarefaService.getTarefas(pageNo, pageSize, sortBy, sortDir);
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @GetMapping("/incompletas")
-    public ResponseEntity<List<TarefaDto>> getTarefasIncompletas(){
-        List<TarefaDto> lista = tarefaService.getTarefasIncompletas();
+    public ResponseEntity<TarefaResponse> getTarefasIncompletas(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
+    ){
+        TarefaResponse lista = tarefaService.getTarefasIncompletas(pageNo, pageSize, sortBy, sortDir);
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 

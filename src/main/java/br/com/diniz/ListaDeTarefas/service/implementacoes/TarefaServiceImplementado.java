@@ -1,11 +1,16 @@
 package br.com.diniz.ListaDeTarefas.service.implementacoes;
 
 import br.com.diniz.ListaDeTarefas.dto.TarefaDto;
+import br.com.diniz.ListaDeTarefas.dto.TarefaResponse;
 import br.com.diniz.ListaDeTarefas.entidades.Tarefa;
 import br.com.diniz.ListaDeTarefas.repositorio.TarefaRepository;
 import br.com.diniz.ListaDeTarefas.service.TarefaService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -48,20 +53,42 @@ public class TarefaServiceImplementado implements TarefaService {
     }
 
     @Override
-    public List<TarefaDto> getTarefas() {
-        var ListaTarefas = tarefaRepository.findAll().stream().toList(); // aqui a lista vem como List<Tarefa>
+    public TarefaResponse getTarefas(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
 
-        if(ListaTarefas == null) throw new NoSuchElementException();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        Page<Tarefa> page = tarefaRepository.findAll(pageable);
+
+        List<Tarefa> ListaTarefas = page.getContent(); // aqui a lista vem como List<Tarefa>
+
+        if(ListaTarefas == null) throw new NullPointerException("Nenhuma tarefa encontrada");
 
         List<TarefaDto> ListatarefasDto = ListaTarefas.stream().map((t) -> modelMapper.map(t, TarefaDto.class))
                 .collect(Collectors.toList()); //aqui ocore o mapeamento de toda a lista para TarefaDto
 
-        return ListatarefasDto;
+        TarefaResponse retorno = new TarefaResponse();
+        retorno.setTarefas(ListatarefasDto);
+        retorno.setPageSize(page.getSize());
+        retorno.setPageNo(page.getNumber());
+        retorno.setTotalDePaginas(page.getTotalPages());
+        retorno.setTotalElementos(page.getTotalElements());
+        retorno.setUltima(page.isLast());
+
+        return retorno;
     }
 
     @Override
-    public List<TarefaDto> getTarefasIncompletas() {
-        List<Tarefa> ListaTarefas = tarefaRepository.findAll().stream().toList();
+    public TarefaResponse getTarefasIncompletas(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        Page<Tarefa> page = tarefaRepository.findAll(pageable);
+
+        List<Tarefa> ListaTarefas = page.getContent();
 
         if(ListaTarefas == null) throw new NoSuchElementException();
 
@@ -69,7 +96,15 @@ public class TarefaServiceImplementado implements TarefaService {
                 .map((t) -> modelMapper.map(t, TarefaDto.class))
                 .toList();
 
-        return ListaTarefasDto;
+        TarefaResponse retorno = new TarefaResponse();
+        retorno.setTarefas(ListaTarefasDto);
+        retorno.setPageSize(page.getSize());
+        retorno.setPageNo(page.getNumber());
+        retorno.setTotalDePaginas(page.getTotalPages());
+        retorno.setTotalElementos(page.getTotalElements());
+        retorno.setUltima(page.isLast());
+
+        return retorno;
     }
 
     @Override

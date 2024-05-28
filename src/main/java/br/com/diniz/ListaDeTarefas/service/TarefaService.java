@@ -1,6 +1,7 @@
 package br.com.diniz.ListaDeTarefas.service;
 
 import br.com.diniz.ListaDeTarefas.dto.TarefaDto;
+import br.com.diniz.ListaDeTarefas.dto.TarefaResponse;
 import br.com.diniz.ListaDeTarefas.entidades.Tarefa;
 
 import java.util.List;
@@ -10,9 +11,9 @@ public interface TarefaService {
 
     TarefaDto getTarefa(Long id);
 
-    List<TarefaDto> getTarefas();
+    TarefaResponse getTarefas(int pageNo, int pageSize, String sortBy, String sortDir);
 
-    List<TarefaDto> getTarefasIncompletas();
+    TarefaResponse getTarefasIncompletas(int pageNo, int pageSize, String sortBy, String sortDir);
 
     TarefaDto updateTarefa(TarefaDto tarefaDto, Long id);
 
